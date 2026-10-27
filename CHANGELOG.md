@@ -1,5 +1,14 @@
 # 更新记录
 
+## 0.5.2 · 大麦短按与独立结果核验
+
+- 修复补点结果继续沿用首次原生点击起点的问题。原生动作返回后、第二个原生目标返回后，以及手势完成回调后分别重置核验起点；保留两次完整窗口读取均无候选才确认，最多8次、计划约2.5秒，系统调用无法保证硬超时。
+- 原大麦9.0.32精确控件的补点改用ViewConfiguration.getTapTimeout()，在本次Android15测试环境为100ms，取代写死的60ms。仍仅当前版本、唯一已知ID、同一主屏窗口和节点，使用实际中心点，每次进入最多一次；旧开关选择保留，其他应用不继承手势。
+- 单应用诊断分别保留准备点位与显示尺寸、发送是否被接受、系统完成/取消/超时回调及最终控件消失结果。物理尺寸仅作诊断，不按物理模式猜测或缩放坐标，不保存页面文字或截图。
+- 31条本地设备记录、248项核心断言和93项Android断言通过。旧版对照中，一个自建控件忽略60ms触摸，另一个在原生动作耗时900ms、触摸后延迟1500ms关闭时未能确认；新版实际收到一次系统短按并确认。持续存在的控件不计成功，过大/重复/编辑/不可见节点、其他应用、未核对版本、关闭开关和暂停均保留拒绝。正式升级保留4条确认，再新增两条。
+
+短按方式参考[Android官方dispatchGesture示例](https://developer.android.com/reference/android/accessibilityservice/AccessibilityService#dispatchGesture(android.accessibilityservice.GestureDescription,%20android.accessibilityservice.AccessibilityService.GestureResultCallback,%20android.os.Handler))，也与[GKD中心点按实现](https://github.com/gkd-kit/gkd/blob/fe6736fb083ba90d7bace124e30b61ff6e5701f2/gkd-app/src/androidMain/kotlin/li/gkd/app/data/GkdAction.kt)的普通无障碍回退一致。没有引入其特权输入路径。测试夹具只验证故障类型，不能证明真实大麦漏跳的具体原因；小米Android17仍需复测。
+
 ## 0.5.1 · 原生点击与自检报告
 
 - 兼容控件公布 ACTION_CLICK 但 clickable=false 的情况，优先使用已识别控件本身的原生动作。点击拒绝或接受后同一控件仍存在时，重新核验当前主屏前台与同一窗口/控件，再选择尚未尝试过的小范围父控件；最多两次原生尝试，不增加层级或范围，不把系统接受视为成功。
